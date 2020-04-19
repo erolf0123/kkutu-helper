@@ -53,19 +53,46 @@ while 1:
     while str(soup_turn).find('block') >= 0:
         word = soup.select('#GameBox > div > div.game-head > div.jjoriping > div > div.jjo-display.ellipse')
         word = word[0].text
+        word_len1 = len(word)
         word = word.replace(")", "")
         word = word.replace("(", "")
-        print(word)
-        kkk = cur.execute("SELECT * FROM test WHERE use=0 AND word LIKE '" + word[-1] + "%' ORDER BY leng DESC LIMIT 1") #cgiosy 
-        for kk in kkk:
-            driver.find_element_by_xpath('/html/body/div[3]/div[32]/div/input').send_keys(kk[0])
-            cur.execute("update test set use = 1 where word ='"+kk[0]+"'")
-            kuutu_db.commit()
-            driver.find_element_by_xpath('/html/body/div[3]/div[32]/div/button').click()
-            break
-        time.sleep(0.15)
-        soup2 = BeautifulSoup(driver.page_source, 'lxml')
-        soup_turn = soup2.find_all('div','game-input')
+        word_len2 = len(word)
+        if word_len1 > word_len2:
+            print('두개의 선택지')
+            kkk = cur.execute("SELECT * FROM test WHERE use = 0 AND word LIKE '" + word[-1] + "%' OR word LIKE '" + word[0] + "%' ORDER BY leng DESC LIMIT 1")
+            for kk in kkk:
+                driver.find_element_by_xpath('/html/body/div[3]/div[32]/div/input').send_keys(kk[0])
+                cur.execute("update test set use = 1 where word ='"+kk[0]+"'")
+                use_word = kk[0]
+                kuutu_db.commit()
+                driver.find_element_by_xpath('/html/body/div[3]/div[32]/div/button').click()
+                break
+            time.sleep(0.07)
+            soup2 = BeautifulSoup(driver.page_source, 'lxml')
+            soup_turn = soup2.find_all('div','game-input')
+            error_text = soup2.select('#GameBox > div > div.game-head > div.jjoriping > div > div.jjo-display.ellipse > label') 
+            if len(str(error_text)) > 2:
+                cur.execute("delete from test where word = '"+use_word+"'")
+                print(use_word + " 단어가 db에서 삭제되었습니다.")
+                kuutu_db.commit()
+        else:
+            print('한개의 선택지')
+            kkk = cur.execute("SELECT * FROM test WHERE use=0 AND word LIKE '" + word[-1] + "%' ORDER BY leng DESC LIMIT 1") #cgiosy 
+            for kk in kkk:
+                driver.find_element_by_xpath('/html/body/div[3]/div[32]/div/input').send_keys(kk[0])
+                use_word = kk[0]
+                cur.execute("update test set use = 1 where word ='"+kk[0]+"'")
+                kuutu_db.commit()
+                driver.find_element_by_xpath('/html/body/div[3]/div[32]/div/button').click()
+                break
+            time.sleep(0.07)
+            soup2 = BeautifulSoup(driver.page_source, 'lxml')
+            soup_turn = soup2.find_all('div','game-input')
+            error_text = soup2.select('#GameBox > div > div.game-head > div.jjoriping > div > div.jjo-display.ellipse > label')   
+            if len(str(error_text)) > 2:
+                cur.execute("delete from test where word = '"+use_word+"'")
+                print(use_word + " 단어가 db에서 삭제되었습니다.")
+                kuutu_db.commit()
     if len(word) == 0:
         cur.execute("update test set use = 0 where use = 1")
         kuutu_db.commit()
