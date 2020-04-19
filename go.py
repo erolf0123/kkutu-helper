@@ -46,7 +46,7 @@ while 1:
         if check == 0:
             cur.execute("insert into test values('"+str(word)+"','"+str(len(word))+"','1')")
             kuutu_db.commit()
-            print(word +" 단어가 database에 저장되었습니다.")
+            print(word +" 단어가 db에 저장되었습니다.")
 
     soup2 = BeautifulSoup(driver.page_source, 'lxml')
     soup_turn = soup2.find_all('div','game-input')
@@ -58,7 +58,6 @@ while 1:
         word = word.replace("(", "")
         word_len2 = len(word)
         if word_len1 > word_len2:
-            print('두개의 선택지')
             kkk = cur.execute("SELECT * FROM test WHERE use = 0 AND word LIKE '" + word[-1] + "%' OR word LIKE '" + word[0] + "%' ORDER BY leng DESC LIMIT 1")
             for kk in kkk:
                 driver.find_element_by_xpath('/html/body/div[3]/div[32]/div/input').send_keys(kk[0])
@@ -76,8 +75,7 @@ while 1:
                 print(use_word + " 단어가 db에서 삭제되었습니다.")
                 kuutu_db.commit()
         else:
-            print('한개의 선택지')
-            kkk = cur.execute("SELECT * FROM test WHERE use=0 AND word LIKE '" + word[-1] + "%' ORDER BY leng DESC LIMIT 1") #cgiosy 
+            kkk = cur.execute("SELECT * FROM test WHERE use=0 AND word LIKE '" + word[-1] + "%' ORDER BY leng DESC LIMIT 1") 
             for kk in kkk:
                 driver.find_element_by_xpath('/html/body/div[3]/div[32]/div/input').send_keys(kk[0])
                 use_word = kk[0]
