@@ -2,31 +2,16 @@ import sqlite3
 import time
 import re
 import collections
+import os
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 kuutu_db = sqlite3.connect("kkutu.db")
 cur = kuutu_db.cursor()
-driver = webdriver.Chrome(
-    '/Users/erolf0123/Desktop/web/KKUTU-HELPER/chromedriver')
+chromeDriverPath = os.getcwd()+"/chromedriver" #윈도우를 사용하시면 .exe를 붙여야합니다.
+driver = webdriver.Chrome(chromeDriverPath)
 driver.get('https://kkutu.co.kr/login?before=https://kkutu.co.kr')
 
-
-def input_db():
-    r = open('db_end.txt', mode='r')
-    for line in r:
-        check = 0
-        a = line.strip()
-        row = cur.execute("select * from test where word = '"+str(a)+"'")
-        for i in row:
-            check = 1
-            break
-        if check == 0:
-            cur.execute("insert into test values('" +
-                        str(a)+"','"+str(len(a))+"','0')")
-            kuutu_db.commit()
-    r.close()
-    exit()
 
 
 while 1:
